@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+  <settings>
+    <setting name="mapUnderscoreToCamelCase" value="true"/>
+  </settings>
+
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="POOLED">
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver"/>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>
+        <property name="username" value="hr"/>
+        <property name="password" value="hr"/>
+      </dataSource>
+    </environment>
+  </environments>
+  
+  <mappers>
+    <mapper resource="mapper/game.xml"/>
+    <mapper resource="mapper/user.xml"/>
+    <mapper resource="mapper/order.xml"/>
+    <mapper resource="mapper/cart.xml"/>
+    <mapper resource="mapper/board.xml"/>
+    <mapper resource="mapper/reply.xml"/>
+  </mappers>
+  
+</configuration>
