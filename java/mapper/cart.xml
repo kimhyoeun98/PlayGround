@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cart.CartDAO">
+
+	<select id="selectMyCart" resultType="com.playground.cart.CartVO">
+	    select c.cart_no as cartNo,
+	           c.user_id as userId,
+	           c.game_no as gameNo,
+	           g.game_name as gameName,
+	           g.game_price as gamePrice,
+	           g.game_img as gameImg
+	      from pg_cart c
+	      join pg_game g on c.game_no = g.game_no
+	     where c.user_id = #{userId}
+	     order by c.cart_no DESC
+	</select>
+
+    <insert id="insertCart">
+        insert into pg_cart (cart_no, user_id, game_no)
+        values (seq_cart_no.nextval, #{userId}, #{gameNo})
+    </insert>
+    
+    <select id="checkCart" resultType="int">
+        select count(*) 
+          from pg_cart 
+         where user_id = #{userId} 
+           and game_no = #{gameNo}
+    </select>
+
+    <delete id="deleteCart">
+        delete from pg_cart 
+         where cart_no = #{cartNo}
+    </delete>
+
+    <delete id="deleteAllCart">
+        delete from pg_cart 
+         where user_id = #{userId}
+    </delete>
+
+    <select id="selectCartOne" resultType="com.playground.cart.CartVO">
+        select c.cart_no as cartNo,
+               c.user_id as userId,
+               c.game_no as gameNo,
+               g.game_name as gameName,
+               g.game_price as gamePrice,
+               g.game_img as gameImg
+          from pg_cart c
+          join pg_game g on c.game_no = g.game_no
+         where c.cart_no = #{cartNo}
+    </select>
+
+</mapper>

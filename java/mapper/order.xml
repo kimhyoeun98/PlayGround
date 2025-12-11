@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="order.OrderDAO">
+
+    <insert id="insertOrder" parameterType="com.playground.order.OrderVO">
+        insert into pg_order (order_no, user_id, game_no, order_price, order_date, status)
+        values (seq_order_no.nextval, #{userId}, #{gameNo}, #{orderPrice}, SYSDATE, 1)
+    </insert>
+
+    <select id="selectMyOrders" resultType="com.playground.order.OrderVO">
+        select o.order_no as orderNo,
+               o.order_date as orderDate,
+               o.order_price as orderPrice,
+               o.status as status,
+               o.game_no as gameNo,
+               g.game_name as gameName,  g.game_img as gameImg     
+          from pg_order o
+          join pg_game g on o.game_no = g.game_no
+         where o.user_id = #{userId}
+           and o.status = 1  
+         order by o.order_date DESC
+    </select>
+
+    <select id="selectAllOrders" resultType="com.playground.order.OrderVO">
+        select o.order_no as orderNo,
+               o.user_id as userId,
+               g.game_name as gameName,
+               o.order_price as orderPrice,
+               o.order_date as orderDate,
+               o.status
+          from pg_order o
+          join pg_game g on o.game_no = g.game_no
+         order by o.order_date DESC
+    </select>
+    
+    <select id="getOrderOne" resultType="com.playground.order.OrderVO">
+        select order_no as orderNo,
+               user_id as userId,
+               game_no as gameNo,
+               order_price as orderPrice,
+               status
+          from pg_order 
+         where order_no = #{orderNo}
+    </select>
+
+    <update id="deductUserPoint" parameterType="com.playground.order.OrderVO">
+        update pg_member 
+           set user_point = user_point - #{orderPrice} 
+         where user_id = #{userId}
+    </update>
+    
+    <update id="refundUserPoint" parameterType="com.playground.order.OrderVO">
+        update pg_member 
+           set user_point = user_point + #{orderPrice} 
+         where user_id = #{userId}
+    </update>
+    
+    <update id="updateRefundStatus">
+        update pg_order 
+           set status = 0 
+         where order_no = #{orderNo}
+    </update>
+
+</mapper>

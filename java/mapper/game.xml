@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="game.GameDAO"> 
+
+	<select id="selectAll" resultType="com.playground.game.GameVO">
+        select game_no as gameNo, 
+               game_name as gameName, 
+               game_genre as gameGenre, 
+               game_dev as gameDev, 
+               game_price as gamePrice, 
+               status, 
+               regdate as regDate,
+               game_img as gameImg  from pg_game 
+         order by game_no desc
+    </select>
+
+
+    <select id="selectOne" resultType="com.playground.game.GameVO">
+        select game_no as gameNo, 
+               game_name as gameName, 
+               game_genre as gameGenre, 
+               game_dev as gameDev, 
+               game_price as gamePrice, 
+               game_desc as gameDesc, 
+               regdate as regDate,
+               status,
+               game_img as gameImg  from pg_game 
+         where game_no = #{gameNo} 
+    </select>
+
+	<select id="selectByFind" resultType="com.playground.game.GameVO">
+	    select game_no as gameNo, 
+	           game_name as gameName, 
+	           game_genre as gameGenre, 
+	           game_dev as gameDev, 
+	           game_price as gamePrice, 
+	           status, 
+	           regdate as regDate,
+	           game_img as gameImg
+	      from pg_game 
+	     where status = 1 
+	       and (
+	          
+	               instr(upper(game_name), upper(#{gameName})) != 0
+	            or instr(upper(game_genre), upper(#{gameName})) != 0
+	            or instr(upper(game_dev),   upper(#{gameName})) != 0
+	            
+	            
+	            <if test="gameGenre != null">
+	               or instr(upper(game_name), upper(#{gameGenre})) != 0
+	               or instr(upper(game_genre), upper(#{gameGenre})) != 0
+	               or instr(upper(game_dev),   upper(#{gameGenre})) != 0
+	            </if>
+	       )
+	     order by game_no desc
+	</select>
+
+<!-- 게임 추가(GAME-004) (이름, 장르, 제작사, 출시일, 가격)-->
+	<insert id="insertGame" parameterType="com.playground.game.GameVO">
+	    insert into pg_game (game_no, game_name, game_genre, game_dev, regDate, game_price, status, game_desc,game_img  ) 
+	    		values (seq_game_no.nextval, #{gameName}, #{gameGenre}, #{gameDev}, SYSDATE, #{gamePrice}, 1, #{gameDesc}, #{gameImg}  )
+	</insert>
+	
+	<!-- 게임 이름, 장르, 개발사, 가격으로 중복 확인 -->
+	<select id="checkGameExist" parameterType="com.playground.game.GameVO" resultType="int">
+		select count(*) 
+    	  from pg_game 
+    	 where game_name = #{gameName} 
+      	   and game_genre = #{gameGenre} 
+      	   and game_dev = #{gameDev} 
+      	   and game_price = #{gamePrice} 
+	</select>
+		
+<!-- 게임 수정(GAME-005) 관리자만 실행 가능, 기존에 등록된 정보를 불러와서 내용 수정, 
+						가격과 제작사만 수정 가능, 다른 정보 수정 원할 경우 해당 게임 구매 불가처리 후 다시 추가 -->
+	<update id="updateGame" parameterType="com.playground.game.GameVO" >
+		update pg_game 
+		   set game_price = #{gamePrice} 
+		       , game_dev = #{gameDev} 
+		       , status = #{status}
+		       , game_img = #{gameImg}
+		 where game_no = #{gameNo} 
+	</update>
+	
+<!-- 게임 삭제(GAME-006) 관리자만 실행 가능, 선택한 게임을 목록에서 삭제, 회원에게 이미 구매 내역이 있을 경우 판매 중지 상태로만 변경  -->
+
+	<!-- 구매 확인, 구매한 사람이 있는지 확인용, 구매자가 있으면 해당 게임은 구매 불가로 처리 후 유저 라이브러리에선 삭제x, 목록에선 삭제 -->
+	<select id="checkOrderExist" resultType="int">
+        select count(*) 
+          from pg_order 
+         where game_no = #{gameNo} 
+    </select>
+      
+    <!-- 산 사림 없으면 삭제 처리 -->
+    <delete id="deleteGameReal">
+        delete from pg_game 
+         where game_no = #{gameNo} 
+    </delete>
+    
+    <!-- 판매 중지 하기 위해서 산 사람이 있으면 상태만 0으로 변경-->
+    <update id="stopSellingGame">
+        update pg_game 
+           set status = 0  
+         where game_no = #{gameNo} 
+    </update>
+    
+    <select id="selectNewReleases" resultType="com.playground.game.GameVO">
+	    select game_no as gameNo, 
+	           game_name as gameName, 
+	           game_genre as gameGenre, 
+	           game_dev as gameDev, 
+	           game_price as gamePrice, 
+	           status, 
+	           regdate as regDate,
+	           game_img as gameImg
+	      from pg_game 
+	     where status = 1 
+	       and regdate >= SYSDATE - 7  ORDER BY regdate DESC
+	</select>
+	
+	<select id="selectBestSellers" resultType="com.playground.game.GameVO">
+	    select g.game_no as gameNo, 
+	           g.game_name as gameName, 
+	           g.game_genre as gameGenre, 
+	           g.game_dev as gameDev, 
+	           g.game_price as gamePrice, 
+	           g.status, 
+	           g.regdate as regDate,
+	           g.game_img as gameImg,
+	           count(o.order_no) as sales_count  
+	      from pg_game g
+	      left join pg_order o ON g.game_no = o.game_no
+	     where g.status = 1
+	     group by g.game_no, g.game_name, g.game_genre, g.game_dev, g.game_price, g.status, g.regdate, g.game_img
+	     order by count(o.order_no) desc, g.game_no desc
+	</select>
+	
+	<select id="checkUserOwnership" parameterType="map" resultType="int">
+	    select count(*) 
+	      from pg_order 
+	     where user_id = #{userId} 
+	       and game_no = #{gameNo}
+	</select>
+    		
+	
+	
+</mapper>
