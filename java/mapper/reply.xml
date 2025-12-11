@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="reply.ReplyDAO">
+
+    <select id="selectAll" resultType="com.playground.reply.ReplyVO">
+        select reply_no as replyNo, 
+               board_no as boardNo, 
+               writer, 
+               content, 
+               regdate
+          from pg_reply
+         where board_no = #{boardNo}
+         order by reply_no ASC  </select>
+
+    <insert id="insertReply" parameterType="com.playground.reply.ReplyVO">
+        insert into pg_reply (reply_no, board_no, writer, content, regdate)
+        values (seq_reply_no.nextval, #{boardNo}, #{writer}, #{content}, SYSDATE)
+    </insert>
+
+    <delete id="deleteReply">
+        delete from pg_reply where reply_no = #{replyNo}
+    </delete>
+
+</mapper>

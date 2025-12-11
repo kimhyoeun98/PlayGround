@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user.UserDAO"> 
+
+
+<!-- 회원가입(USER-001) (아이디, 비밀번호, 이름, 이메일을 입력 받음), 회원 번호와 등록일은 자동 생성 -->
+	<insert id="signUp" parameterType="com.playground.user.UserVO">
+        insert into pg_member (user_no, user_id, user_pw, user_name, user_email, user_phone, user_addr, joinDate ) 
+        		values (seq_user_no.nextval, #{userId}, #{userPw}, #{userName}, #{userEmail}, #{userPhone}, #{userAddr}, SYSDATE ) 
+    </insert>
+	
+<!-- 중복된 아이디인지 체크 -->
+    <select id="checkIdExist" parameterType="String" resultType="int">
+        select count(*) 
+          from pg_member 
+         where user_id = #{userId}
+    </select>
+<!-- 로그인(USER-002) 아이디와 비밀번호로 사용자 인증 -->
+	<select id="login" parameterType="com.playground.user.UserVO" resultType="com.playground.user.UserVO">
+	    select user_no as userNo, 
+	           user_id as userId, 
+	           user_name as userName, 
+	           user_email as userEmail, 
+	           user_phone as userPhone, 
+	           user_addr as userAddr, 
+	           joinDate,
+	           user_point as userPoint  
+	      from pg_member 
+	     where user_id = #{userId} 
+	       and user_pw = #{userPw} 
+	</select>
+	    
+<!-- 회원 상세 정보(USER-004) 아이디, 이름, 이메일, 번호, 주소 등록일 확인 -->
+	<select id="getUser" resultType="com.playground.user.UserVO">
+	    select user_id as userId, 
+	           user_name as userName, 
+	           user_email as userEmail, 
+	           user_phone as userPhone, 
+	           user_addr as userAddr, 
+	           joinDate,
+	           user_point as userPoint  
+	      from pg_member 
+	     where user_id = #{userId}
+	</select>
+    
+<!-- 회원 정보 수정(USER-005) 비밀번호만 수정 가능 -->
+    <update id="updatePw" parameterType="com.playground.user.UserVO">
+        update pg_member 
+           set user_pw = #{userPw} 
+         where user_id = #{userId} 
+    </update>
+<!-- 회원 탈퇴(USER-006) 회원 정보 삭제 -->
+    <delete id="deleteUser" parameterType="String">
+        delete from pg_member 
+         where user_id = #{userId} 
+    </delete>
+<!-- 회원 지우기 전에 주문 지우기 -->
+    <delete id="deleteUserOrders" parameterType="String">
+	    delete from pg_order 
+	     where user_id = #{userId}
+	</delete>
+
+<!-- 회원 목록 보기(USER-007) 회원 목록 보기 -->
+    <select id="selectAll" resultType="com.playground.user.UserVO">
+        select user_no as userNo, user_id as userId, user_name as userName, user_email as userEmail, 
+        	   user_phone as userPhone, user_addr as userAddr, joinDate 
+          from pg_member 
+         order by joinDate desc 
+    </select>
+    
+    <update id="chargePoint" parameterType="com.playground.user.UserVO">
+	    update pg_member 
+	       set user_point = user_point + #{userPoint} 
+	     where user_id = #{userId}
+	</update>
+		
+	<update id="payPoint" parameterType="com.playground.user.UserVO">
+	    update pg_member 
+	       set user_point = user_point - #{userPoint} 
+	     where user_id = #{userId}
+	</update>
+	
+
+</mapper>
