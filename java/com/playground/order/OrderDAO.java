@@ -29,6 +29,13 @@ public class OrderDAO {
 		List<OrderVO> list = session.selectList("order.OrderDAO.selectMyOrders", userId);
 		return list;
 	}
+	
+	// 3. 전체 주문 내역 보기 (관리자용)
+    public List<OrderVO> getAllOrders() {
+        // SQL Mapper 파일(order.xml)에서 전체 목록을 조회하는 쿼리 ID를 호출합니다.
+        List<OrderVO> list = session.selectList("order.OrderDAO.selectAllOrders");
+        return list;
+    }
 
 	// 포인트 차감 메서드
 	public void deductPoint(String userId, int amount) {

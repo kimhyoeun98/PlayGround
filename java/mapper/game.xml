@@ -143,6 +143,29 @@
 	     where user_id = #{userId} 
 	       and game_no = #{gameNo}
 	</select>
+	<select id="selectDuplicateGame" parameterType="com.playground.game.GameVO" resultType="com.playground.game.GameVO">
+	        select game_no as gameNo, 
+	               game_name as gameName, 
+	               game_genre as gameGenre, 
+	               game_dev as gameDev, 
+	               game_price as gamePrice, 
+	               game_desc as gameDesc, 
+	               regdate as regDate,
+	               status,
+	               game_img as gameImg 
+	          from pg_game 
+	         where game_name = #{gameName} 
+	           and game_genre = #{gameGenre} 
+	           and game_dev = #{gameDev} 
+	           and game_price = #{gamePrice} 
+	        <if test="gameNo == 0">
+	           -- 등록 시에는 gameNo가 0일 것이므로, 가장 최근에 등록된 1개만 가져옴.
+	           order by game_no desc 
+	           fetch first 1 row only
+	        </if>
+	</select>	
+	
+    		
     		
 	
 	

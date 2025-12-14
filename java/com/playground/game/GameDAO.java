@@ -41,20 +41,8 @@ public class GameDAO {
 	    return session.selectList("game.GameDAO.selectByFind", vo);
 	}
 	
-	// 등록
-	public void insert(GameVO game) {	
-		
-		int count = session.selectOne("game.GameDAO.checkGameExist", game);
-		
-		if (count > 0) {
-	        System.out.println("[" + game.getGameName() + "]과(와) 동일한 게임이 이미 존재합니다.");
-	        return;
-	    }		
-		
-		session.insert("game.GameDAO.insertGame", game);
-		session.commit();
-		System.out.println("게임 [" + game.getGameName() + "] 등록 완료");				
-	}
+	
+
 	
 	// 수정 
 	public void update(GameVO game) {
@@ -81,6 +69,30 @@ public class GameDAO {
 	        session.commit();
 	        
 	    }
+	}
+	// 중복 조회 (Controller에서 중복 확인용으로 사용)
+	public GameVO selectDuplicate(GameVO tempVo) {
+        // game.xml의 selectDuplicateGame ID를 호출하여 기존 게임 객체를 리턴합니다.
+        GameVO existingGame = session.selectOne("game.GameDAO.selectDuplicateGame", tempVo);
+        return existingGame;
+    }
+	
+	// 🚨 [수정됨] 등록: Controller에서 중복 체크를 완료하고 넘어온 경우에만 실행됩니다.
+	public void insert(GameVO game) {	
+		
+		// ❌ DAO 내부의 중복 체크 로직을 제거하여 Controller의 로직을 따르도록 함
+		/*
+		int count = session.selectOne("game.GameDAO.checkGameExist", game);
+		
+		if (count > 0) {
+	        System.out.println("[" + game.getGameName() + "]과(와) 동일한 게임이 이미 존재합니다.");
+	        return; 
+	    }		
+		*/
+		
+		session.insert("game.GameDAO.insertGame", game);
+		session.commit();
+		System.out.println("게임 [" + game.getGameName() + "] 등록 완료");				
 	}
 	
 	// 신제품 조회
