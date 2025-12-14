@@ -417,7 +417,15 @@
             <c:if test="${sessionScope.loginUser.userId == 'admin'}">
                 <div class="info-group" style="border: 1px solid #d9534f; background-color: rgba(217, 83, 79, 0.1);">
                     <div class="info-title" style="color: #ff7b77; border-bottom-color: #ff7b77;">관리자 전용 메뉴</div>
-                    <a href="userList.do" class="steam-btn" style="background-color: rgba(217, 83, 79, 0.3);">전체 회원 목록 조회</a>
+                    
+                    <div class="admin-menu-group">
+                        <a href="userList.do" class="steam-btn" style="background-color: rgba(217, 83, 79, 0.3);">
+                            전체 회원 목록 조회
+                        </a>
+                        <a href="adminOrderList.do" class="steam-btn" style="background-color: rgba(217, 83, 79, 0.3);">
+                            전체 주문 내역 조회
+                        </a>
+                    </div>
                 </div>
             </c:if>
 
