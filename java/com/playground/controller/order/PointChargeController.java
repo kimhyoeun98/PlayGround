@@ -49,6 +49,6 @@ public class PointChargeController implements Controller {
         loginUser.setUserPoint(loginUser.getUserPoint() + amount);
         
         // 완료 후 마이페이지로 이동
-        return "redirect:/myInfo.do";
+        return "redirect:/cartList.do";
     }
 }
