@@ -5,10 +5,14 @@
 
 <mapper namespace="order.OrderDAO">
 
-    <insert id="insertOrder" parameterType="com.playground.order.OrderVO">
-        insert into pg_order (order_no, user_id, game_no, order_price, order_date, status)
-        values (seq_order_no.nextval, #{userId}, #{gameNo}, #{orderPrice}, SYSDATE, 1)
-    </insert>
+	<insert id="insertOrders" parameterType="java.util.List">
+	    insert all
+	    <foreach collection="list" item="item">
+	        into pg_order (order_no, user_id, game_no, order_price, order_date, status)
+	        values (get_next_seq(), #{item.userId}, #{item.gameNo}, #{item.orderPrice}, SYSDATE, 1)
+	    </foreach>
+	    select * from dual
+	</insert>
 
     <select id="selectMyOrders" resultType="com.playground.order.OrderVO">
         select o.order_no as orderNo,

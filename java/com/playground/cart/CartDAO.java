@@ -14,22 +14,15 @@ public class CartDAO {
     
     // 장바구니 추가
     public boolean insert(CartVO vo) {
-        // 1. 이미 담겨있는지 중복 체크
-        int count = session.selectOne("cart.CartDAO.checkCart", vo);
-        
-        if (count > 0) {
-            System.out.println("이미 장바구니에 있는 게임입니다.");
-            return false; // 이미 있음 (실패 처리)
-        }
-        
-        // 2. 없으면 추가
-        try {
+        try {        
+            int count = session.selectOne("cart.CartDAO.checkCart", vo); 
+            if (count > 0) return false;
+
             session.insert("cart.CartDAO.insertCart", vo);
             session.commit();
-            System.out.println("장바구니 추가 완료");
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            session.rollback();
             return false;
         }
     }
@@ -56,4 +49,13 @@ public class CartDAO {
 	 public CartVO selectOne(int cartNo) {
 	     return session.selectOne("cart.CartDAO.selectCartOne", cartNo);
 	 }
+	 
+	 // 장바구니 중복 체크
+	 public int checkDuplicate(CartVO vo) {
+		 return session.selectOne("cart.CartDAO.checkCart", vo);
+	}
+	 // 장바구니 체크
+	 public int checkCart(CartVO vo) {
+		    return session.selectOne("cart.CartDAO.checkCart", vo);
+	}
 }

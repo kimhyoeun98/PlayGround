@@ -138,11 +138,13 @@
 	</select>
 	
 	<select id="checkUserOwnership" parameterType="map" resultType="int">
-	    select count(*) 
-	      from pg_order 
-	     where user_id = #{userId} 
-	       and game_no = #{gameNo}
-	</select>
+		    select count(*) 
+		      from pg_order 
+		     where user_id = #{userId} 
+		       and game_no = #{gameNo}
+		       and status = 1  
+    </select>
+	
 	<select id="selectDuplicateGame" parameterType="com.playground.game.GameVO" resultType="com.playground.game.GameVO">
 	        select game_no as gameNo, 
 	               game_name as gameName, 

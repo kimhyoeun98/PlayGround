@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 
 import com.playground.framework.Controller;
 import com.playground.order.OrderDAO;
+import com.playground.user.UserDAO;
 import com.playground.user.UserVO;
 
 public class RefundController implements Controller {
@@ -32,7 +33,9 @@ public class RefundController implements Controller {
         
         // 3. 세션 포인트 갱신 (화면에 바로 반영되도록)
         // 현재 포인트 + 환불된 금액
-        loginUser.setUserPoint(loginUser.getUserPoint() + refundedPrice);
+        UserDAO userDAO = new UserDAO();
+        UserVO updatedUser = userDAO.getUser(loginUser.getUserId());
+        session.setAttribute("loginUser", updatedUser);
         
         System.out.println(">>> [환불 완료] " + refundedPrice + "포인트가 환불되었습니다.");
         
